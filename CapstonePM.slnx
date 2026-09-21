@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CapstonePM.Api/CapstonePM.Api.csproj" />
+    <Project Path="src/CapstonePM.Application/CapstonePM.Application.csproj" />
+    <Project Path="src/CapstonePM.Infrastructure/CapstonePM.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CapstonePM.Api.Tests/CapstonePM.Api.Tests.csproj" />
+  </Folder>
+</Solution>
