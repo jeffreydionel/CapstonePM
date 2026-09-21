@@ -1,75 +1,89 @@
-# React + TypeScript + Vite
+# CapstonePM
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CapstonePM is the evolving COMP 3402 capstone application.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- .NET SDK selected for the official course repository
+- Node.js and npm
+- Git
+- EF Core CLI tool compatible with the repository dependencies
 
-## React Compiler
+## Architecture baseline
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/CapstonePM.Web` — React + TypeScript presentation and browser routing.
+- `src/CapstonePM.Api` — ASP.NET Core HTTP/API boundary and composition root.
+- `src/CapstonePM.Application` — application behavior and abstractions.
+- `src/CapstonePM.Infrastructure` — EF Core persistence and infrastructure.
 
-## Expanding the ESLint configuration
+Dependency direction:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+`Web --HTTP/JSON--> Api -> Application`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+`Api -> Infrastructure -> Application`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+`Application` does not reference EF Core or `Infrastructure`.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The server remains authoritative for validation, authorization, business rules,
+state transitions, concurrency, and persistence as those concerns are introduced.
 
-```
+## API convention
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Application HTTP endpoints use the `/api` base path.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Lesson 01 provides:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+`GET /api/status`
 
-```
+This is a walking-skeleton endpoint, not the final production health subsystem.
+
+## Configuration
+
+Local development uses `src/CapstonePM.Api/appsettings.Development.json`.
+
+Production-style configuration must be supplied externally. Do not commit
+secrets. The database setting key is:
+
+`ConnectionStrings__CapstonePm`
+
+## Database setup
+
+From the repository root:
+
+    dotnet ef database update --project src/CapstonePM.Infrastructure --startup-project src/CapstonePM.Api
+
+The first migration is `InitialCreate`.
+
+## Build
+
+From the repository root:
+
+    dotnet restore
+    dotnet build
+
+Then build the React client:
+
+    cd src/CapstonePM.Web
+    npm ci
+    npm run build
+    cd ../..
+
+## Test
+
+From the repository root:
+
+    dotnet test
+
+## Run locally
+
+Terminal 1:
+
+    dotnet run --project src/CapstonePM.Api
+
+Terminal 2:
+
+    cd src/CapstonePM.Web
+    npm run dev
+
+Open the Vite development URL shown in Terminal 2.
+The client calls the API through the `/api` development proxy.
